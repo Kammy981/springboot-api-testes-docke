@@ -1,6 +1,6 @@
 # API de produtos
 
-API REST com Java 21, Spring Boot e PostgreSQL. Cada produto tem identificador, nome, descrição, preço e estoque.
+Esta API cadastra produtos e permite consultar, atualizar e excluir os registros. Cada produto tem nome, descrição, preço e estoque. O PostgreSQL guarda os dados e gera o identificador.
 
 ## Build
 
@@ -8,7 +8,7 @@ Com Java 21 e Maven, execute `mvn clean package`. No Windows, também é possív
 
 ## Execução com Docker Compose
 
-No PowerShell, configure um usuário e uma senha local. No PowerShell 7, use `Read-Host 'Senha do PostgreSQL' -MaskInput` para mascarar a digitação.
+Na raiz do projeto, abra o PowerShell e rode os comandos abaixo. Na primeira execução, escolha uma senha para o banco local. Nas próximas, use a mesma senha enquanto o volume existir.
 
 ```powershell
 $env:DB_USER = 'produtos'
@@ -20,13 +20,15 @@ Invoke-RestMethod http://localhost:8080/actuator/health
 docker compose logs api
 ```
 
-A API usa a porta 8080 no host e o PostgreSQL usa 5432. Configure `API_PORT` ou `DB_PORT` se essas portas estiverem ocupadas. O Compose conecta a API ao banco pelo nome `db` e guarda os dados em um volume que permanece após `docker compose down`. Reutilize a senha da primeira inicialização ao usar o mesmo volume.
+A API usa a porta 8080 e o PostgreSQL usa 5432. Se precisar trocar alguma delas, defina `API_PORT` ou `DB_PORT` antes de subir os containers e ajuste os comandos que consultam essa porta. Para encerrar os serviços e manter os dados, rode `docker compose down`.
 
 ## Execução do JAR
 
-Para usar apenas o PostgreSQL do Compose, rode `docker compose up -d --wait db`. Se a API do Compose estiver em execução, use `docker compose stop api` para liberar a porta. Reutilize as mesmas credenciais e execute:
+Defina `DB_USER` e `DB_PASSWORD` no PowerShell como na seção anterior. Se a API já estiver rodando pelo Compose, pare esse serviço para liberar a porta. Em seguida, suba o banco e execute o JAR.
 
 ```powershell
+docker compose stop api
+docker compose up -d --wait db
 $env:DB_URL = 'jdbc:postgresql://localhost:5432/produtos'
 java -jar target/produtos-0.0.1-SNAPSHOT.jar
 ```

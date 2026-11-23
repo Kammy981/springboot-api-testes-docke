@@ -8,7 +8,7 @@
 
 ## Introdução
 
-A API de produtos usa quatro atributos além do identificador e persiste os registros em PostgreSQL. Para que funcione em outros ambientes, ela precisa de um build que possa ser repetido, testes que detectem regressões, configuração fornecida externamente e uma forma de verificar seu estado durante a execução.
+O projeto é uma API de cadastro de produtos. Um produto tem nome, descrição, preço e estoque, e fica salvo no PostgreSQL. O desafio foi preparar a API para rodar em outra máquina sem depender da IDE. Para isso, o Maven gera um JAR, o Docker Compose sobe a API junto com o banco e as credenciais são informadas na hora da execução.
 
 ## Parte I — Testes automatizados
 
@@ -45,7 +45,7 @@ void deveCadastrarProdutoValido() {
 }
 ```
 
-O método `deveCadastrarProdutoValido` em `ProdutoServiceTest` prepara os dados e configura `save` com `thenAnswer` para devolver o próprio produto recebido. A chamada a `service.cadastrar(DADOS)` exercita a criação do objeto. As asserções verificam os quatro atributos e `verify(repository).save(produto)` confirma que o objeto passou pelo Repository. A atualização e os erros de busca e exclusão completam os quatro cenários do Service. O Controller tem cenários para resposta JSON, 404 e corpo inválido.
+O exemplo cadastra um caderno. O `thenAnswer` faz o repositório simulado devolver o mesmo objeto que recebeu. Assim, o teste consegue conferir se o Service montou o produto com os quatro valores esperados e chamou `save`. A atualização e as tentativas de buscar ou excluir um produto inexistente completam os testes do Service. No Controller, os testes conferem o JSON da busca, a resposta 404 e a rejeição de um cadastro vazio.
 
 ## Parte II — Aplicação executável e Docker
 
@@ -94,11 +94,11 @@ O Compose injeta as credenciais nos dois serviços por variáveis de ambiente. A
 | Logs | Falhas e operações difíceis de diagnosticar | Registrar inicialização e identificadores operacionais | Omitir segredos e distinguir solicitação de confirmação |
 | Actuator | Falta verificação automática | Consultar /actuator/health | Restringir detalhes e complementar com testes funcionais |
 
-No projeto de produtos, essas medidas foram aplicadas aos mesmos pontos da arquitetura. Para pedidos, os cenários do Service poderiam cobrir cadastro válido e busca de pedido inexistente, enquanto os testes do Controller verificariam o contrato HTTP correspondente.
+Na API de pedidos, um teste de Service poderia simular a busca de um pedido inexistente e conferir a exceção. O teste de Controller verificaria se essa exceção vira uma resposta HTTP 404. Na API de produtos, a mesma situação foi testada com um ID de produto que o repositório não encontra.
 
 ## Conclusão
 
-O build reproduzível e a configuração externa permitem transportar o mesmo artefato. Os testes verificam o comportamento esperado durante o desenvolvimento e os indicadores de saúde e logs ajudam a acompanhar a execução.
+O JAR gerado pelo Maven rodou pelo terminal e dentro do container. Nesses dois modos, o Actuator confirmou que a aplicação estava saudável e as chamadas HTTP mostraram que era possível gravar, consultar, alterar e excluir um produto. Os testes automatizados ficam no projeto para repetir as verificações de Service e Controller a cada build.
 
 ## Referências consultadas em 23/11/2026
 
