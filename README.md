@@ -51,5 +51,3 @@ Busca, atualização e exclusão de um ID inexistente retornam 404. Dados invál
 ```powershell
 Invoke-RestMethod -Method Post -Uri http://localhost:8080/produtos -ContentType 'application/json' -Body '{"nome":"Caderno","descricao":"Capa dura","preco":19.90,"estoque":10}'
 ```
-
-O [relatório](RELATORIO.md) reúne a pesquisa e a aplicação dos conceitos.
